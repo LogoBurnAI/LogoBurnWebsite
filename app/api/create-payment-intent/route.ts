@@ -7,6 +7,13 @@ export async function POST(req: NextRequest) {
   try {
     const { amount, customerEmail } = await req.json();
 
+    if (!amount) {
+      return NextResponse.json(
+        { error: "Amount is required." },
+        { status: 400 }
+      );
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount,
       currency: "usd",
