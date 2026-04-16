@@ -27,7 +27,7 @@ export default function ProductPage() {
   function handleAddToCart() {
     const item: CartItem = {
       id: Math.random().toString(36).slice(2),
-      product,
+      product: product!,
       selectedSize,
       selectedFinish,
       quantity,
