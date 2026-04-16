@@ -1,50 +1,47 @@
-import { NextRequest, NextResponse } from 'next/server'
-import OpenAI from 'openai'
+import { NextRequest, NextResponse } from "next/server";
+import OpenAI from "openai"; // or your model client
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY!,
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, productType, size } = await req.json()
+    const { prompt } = await req.json();
 
     if (!prompt) {
-      return NextResponse.json({ error: 'Prompt is required' }, { status: 400 })
+      return NextResponse.json(
+        { error: "Prompt is required." },
+        { status: 400 }
+      );
     }
 
-    // Enhance the prompt for print-quality design generation
-    const enhancedPrompt = `
-      Create a professional print-ready graphic design for a ${productType}.
-      Design request: ${prompt}.
-      Style: Bold, high-contrast, vibrant colors suitable for large format printing.
-      Format: Clean, professional, commercial print design.
-      The design should work well at ${size} dimensions.
-      No text unless specifically requested. High resolution, sharp edges.
-    `.trim()
+    // Call your model
+    const response = await client.images.generate({
+      model: "gpt-image-1",
+      prompt,
+      size: "1024x1024",
+    });
 
-    const response = await openai.images.generate({
-      model: 'dall-e-3',
-      prompt: enhancedPrompt,
-      n: 1,
-      size: '1024x1024',
-      quality: 'hd',
-      style: 'vivid',
-      response_format: 'b64_json',
-    })
+    // Safely extract data
+    const imageData = response.data?.[0]?.b64_json;
+    const revisedPrompt = response.data?.[0]?.revised_prompt;
 
-    const imageData = response.data[0].b64_json
-    const revisedPrompt = response.data[0].revised_prompt
+    if (!imageData) {
+      return NextResponse.json(
+        { error: "No image data returned from the model." },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
-      imageDataUrl: `data:image/png;base64,${imageData}`,
-      revisedPrompt,
-    })
+      image: imageData,
+      revisedPrompt: revisedPrompt ?? null,
+    });
   } catch (error: any) {
-    console.error('OpenAI error:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to generate design' },
+      { error: error.message },
       { status: 500 }
-    )
+    );
   }
 }
