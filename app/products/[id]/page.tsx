@@ -6,7 +6,7 @@ import { useCartStore } from '@/lib/cart-store'
 import { CartItem } from '@/types'
 import { Sparkles, ShoppingCart, Pencil, Clock, Check } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { v4 as uuid } from 'crypto'
+import { v4 as uuid } from 'uuid'
 
 export default function ProductPage() {
   const params = useParams()
