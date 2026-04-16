@@ -28,9 +28,9 @@ export default function ProductPage() {
     const item: CartItem = {
       id: Math.random().toString(36).slice(2),
       product: product!,
-      selectedSize,
-      selectedFinish,
-      quantity,
+      selectedSize: selectedSize!,
+      selectedFinish: selectedFinish!,
+      quantity: quantity!,
       designDataUrl: null,
       designPrompt: null,
       retailPrice,
