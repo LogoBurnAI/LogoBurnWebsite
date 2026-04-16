@@ -1,26 +1,25 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
-  // your existing logic here
-}
-
   try {
-    const { amount, orderId, customerEmail } = await req.json()
+    const { amount, customerEmail } = await req.json();
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe uses cents
-      currency: 'usd',
-      metadata: { orderId },
+      amount,
+      currency: "usd",
       receipt_email: customerEmail,
-    })
+    });
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
-    })
+    });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json(
+      { error: error.message },
+      { status: 500 }
+    );
   }
 }
