@@ -5,7 +5,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function POST(req: NextRequest) {
   try {
-    const { amount, customerEmail } = await req.json();
+    const { amount, orderId, customerEmail } = await req.json();
 
     if (!amount) {
       return NextResponse.json(
@@ -15,8 +15,9 @@ export async function POST(req: NextRequest) {
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount,
+      amount: Math.round(amount * 100), // Stripe uses cents
       currency: "usd",
+      metadata: orderId ? { orderId } : undefined,
       receipt_email: customerEmail,
     });
 
